@@ -1,5 +1,8 @@
 using ApiApplication.Auth;
 using ApiApplication.Database;
+using ApiApplication.Services;
+using ApiApplication.ViewModels.Models;
+using ApiApplication.ViewModels.Shared;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -14,7 +17,10 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Serialization;
+using System.Text.Json;
 
 namespace ApiApplication
 {
@@ -38,13 +44,44 @@ namespace ApiApplication
             });
             services.AddTransient<IShowtimesRepository, ShowtimesRepository>();
             services.AddSingleton<ICustomAuthenticationTokenService, CustomAuthenticationTokenService>();
+
+            services.AddSingleton<ImdbStatusModel>();
+            services.AddHostedService<ImdbStatusBackgroundService>();
+
             services.AddAuthentication(options =>
             {
                 options.AddScheme<CustomAuthenticationHandler>(CustomAuthenticationSchemeOptions.AuthenticationScheme, CustomAuthenticationSchemeOptions.AuthenticationScheme);
                 options.RequireAuthenticatedSignIn = true;                
                 options.DefaultScheme = CustomAuthenticationSchemeOptions.AuthenticationScheme;
+            });           
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("Read", policy =>
+                    policy.RequireClaim(ClaimTypes.Role, "Read"));
+
+                options.AddPolicy("Write", policy =>
+                    policy.RequireClaim(ClaimTypes.Role, "Write"));
             });
-            services.AddControllers();
+
+           services.AddControllers();
+
+            services.AddControllers().AddNewtonsoftJson(options =>
+            {
+                options.SerializerSettings.ContractResolver = new DefaultContractResolver
+                {
+                    NamingStrategy = new SnakeCaseNamingStrategy()
+                };
+            });
+
+            //    services.AddControllers()
+            //.AddJsonOptions(options =>
+            //{
+            //    options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            //});
+
+
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

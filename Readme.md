@@ -23,7 +23,7 @@ The application represents a Cinema. We want to manage the showtimes of the cine
 
 An Authentication Scheme is already implemented that work with a very simple token. You will need to use the following values in the request headers depend the case, more explained in detail further:
 
-**Read-only Token** Header Name: `ApiKey` | Header Value : `MTIzNHxSZWFk` 
+**Read-only Token** Header Name: `ApiKey` | Header Value : `MTIzNHxSZWFkg` 
 
 **Write Token** Header Name: `ApiKey` | Header Value : `Nzg5NHxXcml0ZQ==` 
 
